@@ -2,6 +2,7 @@ from fastapi import FastAPI
 import aiohttp
 import json
 import base64
+from datetime import datetime
 
 app = FastAPI()
 
@@ -20,7 +21,7 @@ def decode_jwt(token):
 @app.get("/")
 async def home(uid: str, password: str):
 
-    # Call external API to get token
+    # External API call
     url = API_URL.format(uid=uid, password=password)
 
     async with aiohttp.ClientSession() as session:
@@ -28,15 +29,23 @@ async def home(uid: str, password: str):
             data = await resp.json()
 
     token = data.get("token")
+
     if not token:
-        return {"error": "Token not found", "raw": data}
+        return {
+            "developer": "SEMY",
+            "error": "Token not found",
+            "raw": data
+        }
 
     decoded = decode_jwt(token)
     if not decoded:
-        return {"error": "JWT decode failed"}
+        return {
+            "developer": "SEMY",
+            "error": "JWT decode failed"
+        }
 
-    # Final Clean Output
     return {
+        "developer": "SEMY",
         "account_id": decoded.get("account_id"),
         "region": decoded.get("lock_region") or decoded.get("noti_region"),
         "external_uid": decoded.get("external_uid")
